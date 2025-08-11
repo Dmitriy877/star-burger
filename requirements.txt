@@ -4,3 +4,6 @@ Pillow==11.2.*
 environs[django]==14.2.*
 django-phonenumber-field==8.1.0
 phonenumbers==9.0.10
+djangorestframework==3.16.1
+Markdown==3.8.2
+django-filter==25.1
