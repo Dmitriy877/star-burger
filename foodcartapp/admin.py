@@ -8,16 +8,28 @@ from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem
 from .models import Order
+from .models import OrderItem
 
 
-class ProductInLine(admin.TabularInline):
-    model = Product
+class OrderItemInLine(admin.TabularInline):
+    model = OrderItem
+    extra = 0
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    search_fields = [
+        'adress',
+        'name',
+        'phone_number',
+    ]
+    list_display = [
+        'adress',
+        'name',
+        'phone_number',
+    ]
     inlines = [
-        ProductInLine
+        OrderItemInLine
     ]
 
 

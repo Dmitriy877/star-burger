@@ -3,6 +3,8 @@ from django.templatetags.static import static
 
 import json
 from .models import Product
+from .models import Order
+from .models import OrderItem
 
 
 def banners_list_api(request):
@@ -58,6 +60,23 @@ def product_list_api(request):
 
 
 def register_order(request):
-    data = json.loads(request.body.decode())
-    print(data)
+
+    try:
+        data = json.loads(request.body.decode())
+    except ValueError:
+        print('Ошибка получения ответа от Фронтенда')
+
+    order = Order.objects.create(
+        adress=data['address'],
+        name=data['firstname'],
+        last_name=data['lastname'],
+        phone_number=data['phonenumber'],
+    )
+
+    for product in data['products']:
+        OrderItem.objects.create(
+            order=order,
+            product=Product.objects.get(pk=product['product']),
+            product_amount=product['quantity'],
+        )
     return JsonResponse({})

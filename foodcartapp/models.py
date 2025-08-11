@@ -1,16 +1,20 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
+
 
 class Restaurant(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
+        null=False,
     )
     address = models.CharField(
         'адрес',
         max_length=100,
         blank=True,
+        null=False,
     )
     contact_phone = models.CharField(
         'контактный телефон',
@@ -39,7 +43,8 @@ class ProductQuerySet(models.QuerySet):
 class ProductCategory(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
+        null=False,
     )
 
     class Meta:
@@ -53,7 +58,8 @@ class ProductCategory(models.Model):
 class Product(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
+        null=False,
     )
     category = models.ForeignKey(
         ProductCategory,
@@ -124,18 +130,10 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    adress = models.CharField('Адрес', max_length=256,)
-    name = models.CharField('Имя', max_length=256)
-    last_name = models.CharField('Фамилия', max_length=256)
+    adress = models.CharField('Адрес', max_length=256, null=False,)
+    name = models.CharField('Имя', max_length=256, null=False,)
+    last_name = models.CharField('Фамилия', max_length=256, null=False,)
     phone_number = PhoneNumberField(region='RU')
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.SET_NULL,
-        related_name='orders',
-        verbose_name='продукт',
-        null=True,
-        default=None,
-    )
 
     class Meta:
         verbose_name = 'Заказ'
@@ -143,3 +141,32 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.phone_number}"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='order_items',
+        verbose_name='Заказ',
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='order_items',
+        verbose_name='Товар'
+    )
+    product_amount = models.IntegerField(
+        'Количество',
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(10),
+        ]
+    )
+
+    class Meta:
+        verbose_name = 'Элемент заказа'
+        verbose_name_plural = 'Элементы заказа'
+
+    def __str__(self):
+        return f"{self.order} {self.product}"
