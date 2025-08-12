@@ -67,6 +67,26 @@ def register_order(request):
     print(data)
     # data = json.loads(request.body.decode())
 
+    try:
+        data['products']
+    except KeyError:
+        return Response({
+            'products': 'Обязательное поле'
+        })
+
+    if not isinstance(data['products'], list) and data['products'] is not None:
+        return Response({
+            'products': 'Ожидался list со значениями, но был получен "str"'
+        })
+    elif data['products'] is None:
+        return Response({
+            'products': 'Это поле не может быть пустым.'
+        })
+    elif not data['products']:
+        return Response({
+            'products': 'Этот список не может быть пустым.'
+        })
+
     order = Order.objects.create(
         adress=data['address'],
         name=data['firstname'],
