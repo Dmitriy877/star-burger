@@ -59,13 +59,13 @@ def product_list_api(request):
     return Response(dumped_products)
 
 
+
+@api_view(['POST'])
 def register_order(request):
 
-    try:
-        # data = request.data
-        data = json.loads(request.body.decode())
-    except ValueError:
-        print('Ошибка получения ответа от Фронтенда')
+    data = request.data
+    print(data)
+    # data = json.loads(request.body.decode())
 
     order = Order.objects.create(
         adress=data['address'],
@@ -80,4 +80,4 @@ def register_order(request):
             product=Product.objects.get(pk=product['product']),
             product_amount=product['quantity'],
         )
-    return JsonResponse({})
+    return Response()
