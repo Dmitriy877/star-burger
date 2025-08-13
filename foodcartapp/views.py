@@ -59,22 +59,17 @@ def product_list_api(request):
     return Response(dumped_products)
 
 
-
 @api_view(['POST'])
 def register_order(request):
 
     data = request.data
-    print(data)
-    # data = json.loads(request.body.decode())
 
-    try:
-        data['products']
-    except KeyError:
+    if 'products' not in data:
         return Response({
             'products': 'Обязательное поле'
         })
-
-    if not isinstance(data['products'], list) and data['products'] is not None:
+    elif (not isinstance(data['products'], list) and
+          data['products'] is not None):
         return Response({
             'products': 'Ожидался list со значениями, но был получен "str"'
         })
@@ -86,6 +81,45 @@ def register_order(request):
         return Response({
             'products': 'Этот список не может быть пустым.'
         })
+    elif ('firstname' not in data and
+          'lastname' not in data and
+          'phonenumber' not in data and
+          'address' not in data):
+        return Response({
+            'firstname, lastname, phonenumber, address': 'Обязательное поле.'
+        })
+    elif (data['firstname'] is None and
+          data['lastname'] is None and
+          data['phonenumber'] is None and
+          data['address'] is None):
+        return Response({
+            'firstname, lastname, phonenumber, address': 'Это поле не может быть пустым.'
+        })
+    elif data['phonenumber'] == "":
+        return Response({
+            'phonenumber': 'Это поле не может быть пустым.'
+        })
+    elif data['phonenumber'][2] == '0':
+        return Response({
+            'phonenumber': 'Введен некорректный номер телефона.'
+        })
+    elif (not isinstance(data['firstname'], str) and
+          data['firstname'] is not None):
+        return Response({
+            'firstname': 'Not a valid string.'
+        })
+    elif data['firstname'] is None:
+        return Response({
+            'firstname': 'Это поле не может быть пустым.'
+        })
+    for product in data['products']:
+        try:
+            product_id = product['product']
+            Product.objects.get(id=product_id)
+        except Exception:
+            return Response({
+                'products': f'Недопустимый первичный ключ {product_id}'
+            })
 
     order = Order.objects.create(
         adress=data['address'],
