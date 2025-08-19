@@ -101,5 +101,6 @@ def register_order(request):
             order=order,
             product=product['product'],
             quantity=product['quantity'],
+            price=product['product'].price * product['quantity']
         )
     return Response(OrderSerializer(order).data)
