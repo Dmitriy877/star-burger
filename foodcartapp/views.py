@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
+from django.db import transaction
 
 from .models import Product
 from .models import Order
@@ -86,21 +87,21 @@ class OrderSerializer(ModelSerializer):
 
 @api_view(['POST'])
 def register_order(request):
-    serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
 
-    order = Order.objects.create(
-        address=serializer.validated_data['address'],
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-    )
-
-    for product in serializer.validated_data['products']:
-        OrderItem.objects.create(
-            order=order,
-            product=product['product'],
-            quantity=product['quantity'],
-            price=product['product'].price * product['quantity']
+    with transaction.atomic():
+        serializer = OrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order = Order.objects.create(
+            address=serializer.validated_data['address'],
+            firstname=serializer.validated_data['firstname'],
+            lastname=serializer.validated_data['lastname'],
+            phonenumber=serializer.validated_data['phonenumber'],
         )
-    return Response(OrderSerializer(order).data)
+        for product in serializer.validated_data['products']:
+            OrderItem.objects.create(
+                order=order,
+                product=product['product'],
+                quantity=product['quantity'],
+                price=product['product'].price * product['quantity']
+            )
+        return Response(OrderSerializer(order).data)
