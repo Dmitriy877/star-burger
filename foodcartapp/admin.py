@@ -2,6 +2,9 @@ from django.contrib import admin
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.shortcuts import redirect
+from django.conf import settings
 
 from .models import Product
 from .models import ProductCategory
@@ -39,6 +42,13 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInLine
     ]
+
+    def response_post_save_change(self, request, obj):
+        url = request.GET.get('next')
+        if url_has_allowed_host_and_scheme(url, settings.ALLOWED_HOSTS):
+            return redirect(url)
+        else:
+            return super().response_post_save_change(request, obj)
 
     # def save_formset(self, request, form, formset, change):
     #     instances = formset.save(commit=False)
