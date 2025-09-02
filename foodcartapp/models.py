@@ -156,7 +156,15 @@ class Order(models.Model):
     lastname = models.CharField('Фамилия', max_length=256, null=False,)
     phonenumber = PhoneNumberField('Номер телефона', region='RU')
     objects = OrderQuerySet.as_manager()
-    comment = models.TextField('Коментарий', max_length=450, default=' ')
+    comment = models.TextField('Коментарий', max_length=450, default=' ', blank=True)
+    possible_restaurants = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name='orders',
+        verbose_name='Рестораны, способные выполнить заказ',
+        null=True,
+        blank=True,
+    )
     payment_method = models.CharField(
         'Способ оплаты',
         max_length=50,
@@ -173,11 +181,13 @@ class Order(models.Model):
         'Звонок выполнен',
         null=True,
         db_index=True,
+        blank=True,
         )
     delivered_at = models.DateTimeField(
         'Заказ доставлен',
         null=True,
         db_index=True,
+        blank=True,
     )
     order_status = models.CharField(
         'Статус заказа',
