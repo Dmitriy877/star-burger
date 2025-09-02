@@ -148,9 +148,11 @@ class Order(models.Model):
     address = models.CharField('Адрес', max_length=256, null=False,)
     firstname = models.CharField('Имя', max_length=256, null=False,)
     lastname = models.CharField('Фамилия', max_length=256, null=False,)
-    phonenumber = PhoneNumberField(region='RU')
+    phonenumber = PhoneNumberField('Номер телефона', region='RU')
     objects = OrderQuerySet.as_manager()
+    comment = models.TextField('Коментарий', max_length=450, default=' ')
     order_status = models.CharField(
+        'Статус заказа',
         max_length=2,
         choices=ORDER_STATUS,
         default=ORDER_STATUS['AC'],
