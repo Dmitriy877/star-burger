@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum, F
+from django.utils import timezone
 
 
 class Restaurant(models.Model):
@@ -144,6 +145,11 @@ class Order(models.Model):
         'BL': 'Сборка заказа',
         'SO': 'Доставка заказа',
         'FN': 'Заказ завершен',
+        'NO': 'Необработанный',
+    }
+    PAYMENT_METHOD = {
+        'CASH': 'Наличными',
+        'CARD': 'Электронно',
     }
     address = models.CharField('Адрес', max_length=256, null=False,)
     firstname = models.CharField('Имя', max_length=256, null=False,)
@@ -151,11 +157,33 @@ class Order(models.Model):
     phonenumber = PhoneNumberField('Номер телефона', region='RU')
     objects = OrderQuerySet.as_manager()
     comment = models.TextField('Коментарий', max_length=450, default=' ')
+    payment_method = models.CharField(
+        'Способ оплаты',
+        max_length=50,
+        choices=PAYMENT_METHOD,
+        default='CARD',
+        db_index=True,
+    )
+    registrated_at = models.DateTimeField(
+        'Заказ зарегестрирован',
+        default=timezone.now,
+        db_index=True,
+    )
+    called_at = models.DateTimeField(
+        'Звонок выполнен',
+        null=True,
+        db_index=True,
+        )
+    delivered_at = models.DateTimeField(
+        'Заказ доставлен',
+        null=True,
+        db_index=True,
+    )
     order_status = models.CharField(
         'Статус заказа',
         max_length=2,
         choices=ORDER_STATUS,
-        default=ORDER_STATUS['AC'],
+        default='NO',
         db_index=True,
     )
 

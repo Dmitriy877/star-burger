@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
 from django.db import transaction
+from django.utils import timezone
 
 from .models import Product
 from .models import Order
@@ -96,6 +97,7 @@ def register_order(request):
             firstname=serializer.validated_data['firstname'],
             lastname=serializer.validated_data['lastname'],
             phonenumber=serializer.validated_data['phonenumber'],
+            registrated_at=timezone.now()
         )
         for product in serializer.validated_data['products']:
             OrderItem.objects.create(
