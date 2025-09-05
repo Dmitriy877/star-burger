@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
 from django.db import transaction
 from django.utils import timezone
@@ -60,30 +59,6 @@ def product_list_api(request):
         }
         dumped_products.append(dumped_product)
     return Response(dumped_products)
-
-
-class OrderItemSerializer(ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = [
-            'product',
-            'quantity',
-        ]
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
-
-    class Meta:
-        model = Order
-        fields = [
-            'id',
-            'firstname',
-            'lastname',
-            'phonenumber',
-            'address',
-            'products',
-        ]
 
 
 @api_view(['POST'])
