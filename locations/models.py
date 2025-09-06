@@ -10,8 +10,8 @@ class Location(models.Model):
         unique=True,
         db_index=True,
     )
-    lon = models.DecimalField('Долгота', max_digits=9, decimal_places=6)
-    lat = models.DecimalField('Широта', max_digits=9, decimal_places=6)
+    lon = models.DecimalField('Долгота', max_digits=9, decimal_places=6, null=True)
+    lat = models.DecimalField('Широта', max_digits=9, decimal_places=6, null=True)
     created_at = models.DateTimeField(
         'Создано',
         null=True,

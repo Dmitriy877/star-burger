@@ -5,13 +5,13 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from django.conf import settings
-
-import requests
-from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from locations.models import Location
-from geopy import distance
 import operator
+
+from geopy import distance
+
+from foodcartapp.models import Product, Restaurant, Order
+from locations.models import Location
+from foodcartapp.models import RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -96,59 +96,37 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
 
-    def fetch_coordinates(apikey, address):
-        try:
-            location = Location.objects.get(address=address)
-            return location.lat, location.lon
-
-        except Location.DoesNotExist:
-
-            base_url = "https://geocode-maps.yandex.ru/1.x"
-            response = requests.get(base_url, params={
-                "geocode": address,
-                "apikey": apikey,
-                "format": "json",
-            })
-            response.raise_for_status()
-            found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-            if not found_places:
-                return None
-            most_relevant = found_places[0]
-            lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-
-            location = Location.objects.create(address=address, lon=lon, lat=lat)
-            return location.lat, location.lon
-
-    def get_distance_to_restaurant(restaurant_address, delivery_address, api_key):
-        try:
-            restaurant_coordinates = fetch_coordinates(api_key, restaurant_address)
-            delivery_coordinates = fetch_coordinates(api_key, delivery_address)
-            return round(distance.distance(restaurant_coordinates, delivery_coordinates).km, 2)
-        except Exception:
-            return 'Произошла ошибка при получении геолокации'
+    def get_distance_to_restaurant(restaurant_address, delivery_address, locations):
+        restaurant_location = locations.get(address=restaurant_address)
+        order_location = locations.get(address=delivery_address)
+        return round(distance.distance((restaurant_location.lon, restaurant_location.lat), (order_location.lon, order_location.lat)).km, 2)
 
     def get_common_restaurants(restaurants):
+        print('common_restaurants', restaurants)
         common_restaurants = restaurants[0]
         for s in restaurants[1:]:
             common_restaurants = common_restaurants.intersection(s)
         return list(common_restaurants)
 
-    def get_sorted_by_distance_possibly_restaurants_to_cook(orders, YANDEX_API_KEY):
-        restaurant_menu_items = RestaurantMenuItem.objects.all().select_related('product', 'restaurant')
+    def get_sorted_by_distance_possibly_restaurants_to_cook(orders, restaurant_menu_items, locations):
         for order in orders:
+            print('order', order)
             restaurants = []
             for product in order.order_items.all():
                 possibly_restaurants = restaurant_menu_items.filter(product=product.product, availability=True)
                 restaurants.append(set(restaurant.restaurant for restaurant in possibly_restaurants))
             common_restaurants = get_common_restaurants(restaurants)
             for restaurant in common_restaurants:
-                restaurant.distance = get_distance_to_restaurant(order.address, restaurant.address, YANDEX_API_KEY)
-        order.possibly_restaurants = sorted(common_restaurants, key=operator.attrgetter('distance'))
+                restaurant.distance = get_distance_to_restaurant(restaurant.address, order.address, locations)
+            order.possibly_restaurants = sorted(common_restaurants, key=operator.attrgetter('distance'))
 
-    YANDEX_API_KEY = settings.YANDEX_API_KEY
     orders = Order.objects.order_price().filter(order_status__in=['AC', 'BL', 'SO', 'NO']).prefetch_related('order_items')
-    get_sorted_by_distance_possibly_restaurants_to_cook(orders, YANDEX_API_KEY)
+    restaurant_menu_items = RestaurantMenuItem.objects.all().select_related('product', 'restaurant')
+
+    locations_data = [order.address for order in orders] + [restaurant.restaurant.address for restaurant in restaurant_menu_items]
+    locations = Location.objects.filter(address__in=locations_data)
+
+    get_sorted_by_distance_possibly_restaurants_to_cook(orders, restaurant_menu_items, locations)
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,
