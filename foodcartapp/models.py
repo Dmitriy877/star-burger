@@ -173,7 +173,7 @@ class Order(models.Model):
         db_index=True,
     )
     registrated_at = models.DateTimeField(
-        'Заказ зарегестрирован',
+        'Заказ зарегистрирован',
         default=timezone.now,
         db_index=True,
     )
