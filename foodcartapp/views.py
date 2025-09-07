@@ -68,7 +68,7 @@ def product_list_api(request):
 def register_order(request):
     def create_location(apikey, address):
 
-        location, created = Location.objects.get_or_create(address=address, created_at=timezone.now())
+        location, created = Location.objects.get_or_create(address=address)
 
         if location.lat and location.lon:
             return location.lat, location.lon
@@ -100,23 +100,8 @@ def register_order(request):
         serializer.is_valid(raise_exception=True)
 
         address = serializer.validated_data['address']
-
         create_location(YANDEX_API_KEY, address)
 
-        order = Order.objects.create(
-            address=address,
-            firstname=serializer.validated_data['firstname'],
-            lastname=serializer.validated_data['lastname'],
-            phonenumber=serializer.validated_data['phonenumber'],
-            registrated_at=timezone.now()
-        )
-
-        for product in serializer.validated_data['products']:
-            product = OrderItem.objects.create(
-                order=order,
-                product=product['product'],
-                quantity=product['quantity'],
-                price=product['product'].price * product['quantity']
-            )
+        order = serializer.save()
 
         return Response(OrderSerializer(order).data)

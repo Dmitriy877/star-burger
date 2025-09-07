@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 
 class Location(models.Model):
@@ -17,6 +16,7 @@ class Location(models.Model):
         null=True,
         db_index=True,
         blank=True,
+        auto_now=True
     )
 
     class Meta:
