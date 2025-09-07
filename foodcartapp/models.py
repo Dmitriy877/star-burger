@@ -156,7 +156,7 @@ class Order(models.Model):
     lastname = models.CharField('Фамилия', max_length=256, null=False,)
     phonenumber = PhoneNumberField('Номер телефона', region='RU')
     objects = OrderQuerySet.as_manager()
-    comment = models.TextField('Коментарий', max_length=450, default=' ', blank=True)
+    comment = models.TextField('Коментарий', max_length=450, blank=True)
     possible_restaurants = models.ForeignKey(
         Restaurant,
         on_delete=models.CASCADE,
