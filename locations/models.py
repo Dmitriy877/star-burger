@@ -17,7 +17,6 @@ class Location(models.Model):
         null=True,
         db_index=True,
         blank=True,
-        default=timezone.now()
     )
 
     class Meta:
