@@ -230,7 +230,6 @@ class OrderItem(models.Model):
         max_digits=8,
         decimal_places=2,
         validators=[MinValueValidator(0)],
-        default=None,
     )
 
     class Meta:
