@@ -68,7 +68,7 @@ def product_list_api(request):
 def register_order(request):
     def create_location(apikey, address):
 
-        location, created = Location.objects.get_or_create(address=address)
+        location, created = Location.objects.get_or_create(address=address, created_at=timezone.now())
 
         if location.lat and location.lon:
             return location.lat, location.lon
