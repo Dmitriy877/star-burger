@@ -172,9 +172,9 @@ class Order(models.Model):
         default='CARD',
         db_index=True,
     )
-    registrated_at = models.DateTimeField(
+    registered_at = models.DateTimeField(
         'Заказ зарегистрирован',
-        default=timezone.now,
+        auto_now=True,
         db_index=True,
     )
     called_at = models.DateTimeField(
