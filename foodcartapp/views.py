@@ -3,15 +3,13 @@ from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import transaction
-from django.utils import timezone
 from django.conf import settings
-import requests
 
 from .models import Product
-from .models import Order
-from .models import OrderItem
 from .serializers import OrderSerializer
-from locations.models import Location
+from .functions import get_or_create_location_object
+from .functions import get_geocoder_location_data
+from .functions import get_or_create_location
 
 
 def banners_list_api(request):
@@ -66,31 +64,6 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    def create_location(apikey, address):
-
-        location, created = Location.objects.get_or_create(address=address)
-
-        if location.lat and location.lon:
-            return location.lat, location.lon
-        try:
-            base_url = "https://geocode-maps.yandex.ru/1.x"
-            response = requests.get(base_url, params={
-                "geocode": address,
-                "apikey": apikey,
-                "format": "json",
-            })
-            response.raise_for_status()
-
-            found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-            if not found_places:
-                return None
-
-            most_relevant = found_places[0]
-            location.lon, location.lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-            location.save()
-        except Exception:
-            return None
 
     YANDEX_API_KEY = settings.YANDEX_API_KEY
 
@@ -100,7 +73,7 @@ def register_order(request):
         serializer.is_valid(raise_exception=True)
 
         address = serializer.validated_data['address']
-        create_location(YANDEX_API_KEY, address)
+        get_or_create_location(YANDEX_API_KEY, address)
 
         order = serializer.save()
 
