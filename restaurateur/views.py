@@ -102,7 +102,6 @@ def view_orders(request):
         return round(distance.distance((restaurant_location.lon, restaurant_location.lat), (order_location.lon, order_location.lat)).km, 2)
 
     def get_common_restaurants(restaurants):
-        print('common_restaurants', restaurants)
         common_restaurants = restaurants[0]
         for s in restaurants[1:]:
             common_restaurants = common_restaurants.intersection(s)
