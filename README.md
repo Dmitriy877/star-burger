@@ -149,7 +149,6 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts)
 - `YANDEX_API_KEY` — "Api ключ к сервису Yandex geocoder API"
   `ROLLBAR_TOKEN` - "токен для системы логирования ROLLBAR" (зарегестрируйте аккаунт Rollbar и создайте токен)
-  `ROLLBAR_ENVIRONMENT` = Имя переменного окружения Rollbar
 
 
 ## Цели проекта
