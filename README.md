@@ -59,7 +59,7 @@ pip install -r requirements.txt
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Создайте файл базы данных и отмигрируйте её следующей командой:
 
 ```sh
 python manage.py migrate
@@ -149,6 +149,10 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts)
 - `YANDEX_API_KEY` — "Api ключ к сервису Yandex geocoder API"
   `ROLLBAR_TOKEN` - "токен для системы логирования ROLLBAR" (зарегестрируйте аккаунт Rollbar и создайте токен)
+  `ROLLBAR_ENVIRONMENT` - виртуальное окружения дял rollbar
+  `DATABASE_NAME` - имя базы данных
+  `DATABASE_USER` - имя пользователя, допущенного до работы с БД
+  `DATABASE_USER_PASSWORD` = пароль пользователя, допущенного до работы с БД
 
 
 ## Цели проекта
