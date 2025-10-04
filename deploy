@@ -12,4 +12,17 @@ npm ci --dev
 systemctl restart starburger
 systemctl reload nginx
 
+curl --request POST \
+     --url https://api.rollbar.com/api/1/deploy \
+     --header "X-Rollbar-Access-Token: ${ROLLBAR_TOKEN}" \
+     --header 'accept: application/json' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "environment": "development",
+  "revision": "$(git rev-parse HEAD)"
+}
+'
+
+
 echo "Deploy succesfull"
