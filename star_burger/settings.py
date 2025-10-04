@@ -17,7 +17,7 @@ DEBUG = env.bool('DEBUG')
 
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
 
 ROLLBAR = {
     'access_token': env('ROLLBAR_TOKEN'),
